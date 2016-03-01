@@ -2,10 +2,6 @@ package chadheise.finance;
 
 import java.io.IOException;
 
-/**
- * Hello world!
- *
- */
 public class App {
 
     private static final String TITLE = "Financial Performance Over Time";

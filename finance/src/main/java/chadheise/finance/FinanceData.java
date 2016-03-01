@@ -106,9 +106,4 @@ public class FinanceData {
         Collections.sort(months);
         return months;
     }
-
-    // public boolean hasData(final int year, final int month) {
-    // return dates.containsKey(year) && dates.get(year).containsKey(month);
-    // }
-
 }
