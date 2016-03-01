@@ -32,7 +32,7 @@ public class FinanceData {
         return changeInValue.get(year).get(month);
     }
 
-    public double getCurrentValue(final int year, final int month) {
+    public double getEndingBalance(final int year, final int month) {
         return getBeginningBalance(year, month) + getAdditions(year, month) + getChangeInValue(year, month);
     }
 
@@ -95,8 +95,20 @@ public class FinanceData {
         return years;
     }
 
-    public boolean hasData(final int year, final int month) {
-        return dates.containsKey(year) && dates.get(year).containsKey(month);
+    /**
+     * Get the sorted months available for a given year.
+     * 
+     * @param year
+     * @return
+     */
+    public List<Integer> getMonths(final int year) {
+        List<Integer> months = new ArrayList<Integer>(dates.get(year).keySet());
+        Collections.sort(months);
+        return months;
     }
+
+    // public boolean hasData(final int year, final int month) {
+    // return dates.containsKey(year) && dates.get(year).containsKey(month);
+    // }
 
 }

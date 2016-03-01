@@ -1,155 +1,45 @@
 package chadheise.finance;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Utils {
 
-    // TODO: Refactor to reuse code
-    public static double[] getBeginningBalances(final FinanceData financeData) {
-        List<Integer> years = financeData.getYears();
+    public static Map<Integer, Map<Integer, Double>> getTotalAdditions(final FinanceData financeData) {
+        Map<Integer, Map<Integer, Double>> additions = new HashMap<Integer, Map<Integer, Double>>();
 
-        // Num years * 12 months/year
-        int size = (years.get(years.size() - 1) - years.get(0) + 1) * 12;
-        double[] values = new double[size];
-        int index = 0;
-
-        for (int year = years.get(0); year < years.get(years.size() - 1); year++) {
-            for (int month = 1; month <= 12; month++) {
-                if (financeData.hasData(year, month)) {
-                    values[index] = financeData.getBeginningBalance(year, month);
-                    index++;
-                }
-                // TODO: Account for missing data
+        double runningTotal = 0;
+        for (int year : financeData.getYears()) {
+            additions.put(year, new HashMap<Integer, Double>());
+            for (int month : financeData.getMonths(year)) {
+                runningTotal += financeData.getAdditions(year, month);
+                additions.get(year).put(month, runningTotal);
             }
         }
 
-        // return values;
-        return Arrays.copyOfRange(values, 0, index);
+        return additions;
     }
 
-    // TODO: Refactor to reuse code
-    public static double[] getAdditions(final FinanceData financeData) {
-        List<Integer> years = financeData.getYears();
-
-        // Num years * 12 months/year
-        int size = (years.get(years.size() - 1) - years.get(0) + 1) * 12;
-        double[] values = new double[size];
-        int index = 0;
-
-        for (int year = years.get(0); year < years.get(years.size() - 1); year++) {
-            for (int month = 1; month <= 12; month++) {
-                if (financeData.hasData(year, month)) {
-                    values[index] = financeData.getAdditions(year, month);
-                    index++;
-                }
-                // TODO: Account for missing data
-            }
-        }
-
-        // return values;
-        return Arrays.copyOfRange(values, 0, index);
-
-    }
-
-    // TODO: Refactor to reuse code
-    public static double[] getChangeInValues(final FinanceData financeData) {
-        List<Integer> years = financeData.getYears();
-
-        // Num years * 12 months/year
-        int size = (years.get(years.size() - 1) - years.get(0) + 1) * 12;
-        double[] values = new double[size];
-        int index = 0;
-
-        for (int year = years.get(0); year < years.get(years.size() - 1); year++) {
-            for (int month = 1; month <= 12; month++) {
-                if (financeData.hasData(year, month)) {
-                    values[index] = financeData.getChangeInValue(year, month);
-                    index++;
-                }
-                // TODO: Account for missing data
-            }
-        }
-
-        // return values;
-        return Arrays.copyOfRange(values, 0, index);
-    }
-
-    // TODO: Refactor to reuse code
-    public static double[] getEndingBalances(final FinanceData financeData) {
-        List<Integer> years = financeData.getYears();
-
-        // Num years * 12 months/year
-        int size = (years.get(years.size() - 1) - years.get(0) + 1) * 12;
-        double[] values = new double[size];
-        int index = 0;
-
-        for (int year = years.get(0); year < years.get(years.size() - 1); year++) {
-            for (int month = 1; month <= 12; month++) {
-                if (financeData.hasData(year, month)) {
-                    double beginningBalance = financeData.getBeginningBalance(year, month);
-                    double additions = financeData.getAdditions(year, month);
-                    double changeInValue = financeData.getChangeInValue(year, month);
-                    values[index] = beginningBalance + additions + changeInValue;
-                    index++;
-                }
-                // TODO: Account for missing data
-            }
-        }
-
-        // return values;
-        return Arrays.copyOfRange(values, 0, index);
-    }
-
-    /**
-     * The expected balances is the sum of the expected monthly return rate
-     * times a value times how long that value has been invested.
-     * 
-     * 
-     * @param financeData
-     * @param yearlyReturn
-     *            the expected yearly return as a percentage (e.g. 8% is 0.08)
-     * @return
-     */
-    public static double[] getExpectedBalances(final FinanceData financeData,
+    public static Map<Integer, Map<Integer, Double>> getExpectedBalances(final FinanceData financeData,
             double yearlyReturn) {
 
         double monthlyReturn = Math.pow(1 + yearlyReturn, (1.0 / 12.0)) - 1;
 
-        double[] additions = getAdditions(financeData);
-        double[] expectedValues = new double[additions.length];
+        Map<Integer, Map<Integer, Double>> expectedBalances = new HashMap<Integer, Map<Integer, Double>>();
 
-        int numMonths = additions.length;
-        double runningTotal;
-
-        for (int i = 0; i < additions.length; i++) {
-
-            double prevVal = 0;
-            if (i != 0) {
-                prevVal = expectedValues[i - 1];
-            }
-
-            expectedValues[i] = prevVal * (1 + monthlyReturn) + additions[i];
-
-            System.out.println("Prev: " + prevVal + " additions: " + additions[i] + " expected: " + expectedValues[i]);
-        }
-
-        return expectedValues;
-    }
-
-    public static double[] getTotalAdditions(final FinanceData financeData) {
-        double[] additions = getAdditions(financeData);
-
-        double[] runningTotals = new double[additions.length];
-        for (int i = 0; i < additions.length; i++) {
-            if (i == 0) {
-                runningTotals[i] = additions[i];
-            } else {
-                runningTotals[i] = runningTotals[i - 1] + additions[i];
+        double previousBalance = 0;
+        for (int year : financeData.getYears()) {
+            expectedBalances.put(year, new HashMap<Integer, Double>());
+            // TODO: This will not be accurate if there are months with missing
+            // data
+            for (int month : financeData.getMonths(year)) {
+                double newBalance = previousBalance * (1 + monthlyReturn) + financeData.getAdditions(year, month);
+                expectedBalances.get(year).put(month, newBalance);
+                previousBalance = newBalance;
             }
         }
 
-        return runningTotals;
+        return expectedBalances;
     }
 
 }
