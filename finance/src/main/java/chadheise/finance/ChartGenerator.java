@@ -32,15 +32,19 @@ public class ChartGenerator {
     private final int width;
     private final int height;
     private final double yearlyReturn;
+    // The number of periods in a year (used for calculating expected return)
+    private final int numPeriods;
     private final int startYear;
 
     public ChartGenerator(final String outputFilePath,
-            final String title, final int width, final int height, final double yearlyReturn, final int startYear) {
+            final String title, final int width, final int height, final double yearlyReturn, final int numPeriods,
+            final int startYear) {
         this.outputFilePath = outputFilePath;
         this.title = title;
         this.width = width;
         this.height = height;
         this.yearlyReturn = yearlyReturn;
+        this.numPeriods = numPeriods;
         this.startYear = startYear;
     }
 
@@ -88,9 +92,10 @@ public class ChartGenerator {
     }
 
     private TimeSeries getExpectedBalancesSeries(final FinanceData financeData, final double yearlyReturn) {
-        Map<Integer, Map<Integer, Double>> expectedBalances = Utils.getExpectedBalances(financeData, yearlyReturn);
+        Map<Integer, Map<Integer, Double>> expectedBalances = Utils.getExpectedBalances(financeData, yearlyReturn,
+                numPeriods);
 
-        TimeSeries series = new TimeSeries(EXPECTED_SERIES_KEY);
+        TimeSeries series = new TimeSeries(EXPECTED_SERIES_KEY + " @ " + yearlyReturn + " per year");
         for (int year : financeData.getYears()) {
             if (year >= startYear) {
                 for (int month : financeData.getMonths(year)) {

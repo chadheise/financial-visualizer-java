@@ -21,9 +21,10 @@ public class Utils {
     }
 
     public static Map<Integer, Map<Integer, Double>> getExpectedBalances(final FinanceData financeData,
-            double yearlyReturn) {
+            double yearlyReturn, int numPeriods) {
 
-        double monthlyReturn = Math.pow(1 + yearlyReturn, (1.0 / 12.0)) - 1;
+        double periods = (double) numPeriods;
+        double monthlyReturn = Math.pow(1 + yearlyReturn, (1.0 / periods)) - 1;
 
         Map<Integer, Map<Integer, Double>> expectedBalances = new HashMap<Integer, Map<Integer, Double>>();
 
