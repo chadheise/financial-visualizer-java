@@ -1,5 +1,6 @@
 package chadheise.finance;
 
+import java.awt.Color;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.io.File;
@@ -21,8 +22,8 @@ public class ChartGenerator {
 
     private static final boolean SHOW_LEGEND = true;
 
-    private static final String ACTUAL_SERIES_KEY = "Actual";
-    private static final String ADDITIONS_SERIES_KEY = "Additions";
+    private static final String ACTUAL_SERIES_KEY = "Balance";
+    private static final String ADDITIONS_SERIES_KEY = "Invested";
     private static final String EXPECTED_SERIES_KEY = "Expected";
     private static final String X_AXIS_LABEL = "Date";
     private static final String Y_AXIS_LABEL = "Value";
@@ -59,6 +60,7 @@ public class ChartGenerator {
                 SHOW_LEGEND, false, false);
 
         addDataMarkers(lineGraph);
+        setLineColors(lineGraph.getXYPlot().getRenderer());
         addDollarFormat(lineGraph);
 
         File file = new File(outputFilePath);
@@ -113,6 +115,12 @@ public class ChartGenerator {
         renderer.setSeriesShape(1, circle);
         renderer.setSeriesShape(2, circle);
         chart.getXYPlot().setRenderer(renderer);
+    }
+
+    private void setLineColors(final XYItemRenderer renderer) {
+        renderer.setSeriesPaint(0, Color.BLUE);
+        renderer.setSeriesPaint(1, Color.RED);
+        renderer.setSeriesPaint(2, Color.GREEN);
     }
 
     private void addDollarFormat(final JFreeChart chart) {
