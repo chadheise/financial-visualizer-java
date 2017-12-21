@@ -3,8 +3,8 @@ package chadheise.finance;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-
-import org.joda.time.DateTime;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class CsvReader {
 
@@ -19,7 +19,8 @@ public class CsvReader {
 
         while ((line = bufferedReader.readLine()) != null) {
             String[] fields = line.split(",");
-            DateTime date = convertDate(fields[0]);
+            DateTimeFormatter f = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+            LocalDate date = LocalDate.parse(fields[0], f);
 
             double beginningBalance = Double.valueOf(fields[1]);
             double additions = Double.valueOf(fields[2]);
@@ -28,21 +29,9 @@ public class CsvReader {
             data.addEntry(date, beginningBalance, additions, changeInValue);
         }
 
-        return data;
-    }
+        bufferedReader.close();
 
-    /**
-     * Converts String date of form "dd/mm/yyy" to a JFreeChart Day.
-     * 
-     * @param date
-     * @return
-     */
-    private DateTime convertDate(final String dateString) {
-        String[] date = dateString.split("/");
-        int day = Integer.valueOf(date[1]);
-        int month = Integer.valueOf(date[0]);
-        int year = Integer.valueOf(date[2]);
-        return new DateTime(year, month, day, 0, 0); // 0 hour & 0 minute
+        return data;
     }
 
 }
