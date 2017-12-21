@@ -14,6 +14,7 @@ public class Utils {
             for (int month : financeData.getMonths(year)) {
                 runningTotal += financeData.getAdditions(year, month);
                 additions.get(year).put(month, runningTotal);
+                System.out.println(year + " " + month);
             }
         }
 
