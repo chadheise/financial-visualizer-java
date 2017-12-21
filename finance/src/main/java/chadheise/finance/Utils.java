@@ -16,7 +16,7 @@ public class Utils {
         for (LocalDate date : financeData.getDates()) {
             runningTotal += financeData.getAdditions(date);
             additions.put(date, runningTotal);
-            System.out.println(String.format("%s %s", date.format(FORMATTER), runningTotal));
+            System.out.format("%s %.2f%n", date.format(FORMATTER), runningTotal);
         }
 
         return additions;
@@ -26,7 +26,7 @@ public class Utils {
         final Map<LocalDate, Double> expectedBalances = new HashMap<>();
 
         LocalDate previousDate = financeData.getDates().first();
-        expectedBalances.put(previousDate, financeData.getEndingBalance(previousDate));
+        expectedBalances.put(previousDate, 0d);
         for (LocalDate date : financeData.getDates()) {
             double totalPeriods = (double) daysInYear(date);
             double returnPerPeriod = Math.pow(1 + yearlyReturn, (1.0 / totalPeriods)) - 1;
@@ -36,7 +36,7 @@ public class Utils {
             double newBalance = expectedBalances.get(previousDate) * Math.pow(1 + returnPerPeriod, numPeriods)
                     + financeData.getAdditions(date);
             expectedBalances.put(date, newBalance);
-            System.out.println(String.format("%s %s", date.format(FORMATTER), newBalance));
+            System.out.format("%s %.2f%n", date.format(FORMATTER), newBalance);
 
             previousDate = date;
         }
