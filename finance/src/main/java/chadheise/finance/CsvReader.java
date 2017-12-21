@@ -19,8 +19,8 @@ public class CsvReader {
 
         while ((line = bufferedReader.readLine()) != null) {
             String[] fields = line.split(",");
-            DateTimeFormatter f = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-            LocalDate date = LocalDate.parse(fields[0], f);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+            LocalDate date = LocalDate.parse(fields[0], formatter);
 
             double beginningBalance = Double.valueOf(fields[1]);
             double additions = Double.valueOf(fields[2]);

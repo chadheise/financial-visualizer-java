@@ -1,47 +1,63 @@
 package chadheise.finance;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Utils {
 
-    public static Map<Integer, Map<Integer, Double>> getTotalAdditions(final FinanceData financeData) {
-        Map<Integer, Map<Integer, Double>> additions = new HashMap<Integer, Map<Integer, Double>>();
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+
+    public static Map<LocalDate, Double> getTotalAdditions(final FinanceData financeData) {
+        Map<LocalDate, Double> additions = new HashMap<>();
 
         double runningTotal = 0;
-        for (int year : financeData.getYears()) {
-            additions.put(year, new HashMap<Integer, Double>());
-            for (int month : financeData.getMonths(year)) {
-                runningTotal += financeData.getAdditions(year, month);
-                additions.get(year).put(month, runningTotal);
-                System.out.println(year + " " + month);
-            }
+        for (LocalDate date : financeData.getDates()) {
+            runningTotal += financeData.getAdditions(date);
+            additions.put(date, runningTotal);
+            System.out.println(String.format("%s %s", date.format(FORMATTER), runningTotal));
         }
 
         return additions;
     }
 
-    public static Map<Integer, Map<Integer, Double>> getExpectedBalances(final FinanceData financeData,
-            double yearlyReturn, int numPeriods) {
+    public static Map<LocalDate, Double> getExpectedBalances(final FinanceData financeData, double yearlyReturn) {
+        final Map<LocalDate, Double> expectedBalances = new HashMap<>();
 
-        double periods = (double) numPeriods;
-        double monthlyReturn = Math.pow(1 + yearlyReturn, (1.0 / periods)) - 1;
+        LocalDate previousDate = financeData.getDates().first();
+        expectedBalances.put(previousDate, financeData.getEndingBalance(previousDate));
+        for (LocalDate date : financeData.getDates()) {
+            double totalPeriods = (double) daysInYear(date);
+            double returnPerPeriod = Math.pow(1 + yearlyReturn, (1.0 / totalPeriods)) - 1;
 
-        Map<Integer, Map<Integer, Double>> expectedBalances = new HashMap<Integer, Map<Integer, Double>>();
+            double numPeriods = daysBetween(previousDate, date);
 
-        double previousBalance = 0;
-        for (int year : financeData.getYears()) {
-            expectedBalances.put(year, new HashMap<Integer, Double>());
-            // TODO: This will not be accurate if there are months with missing
-            // data
-            for (int month : financeData.getMonths(year)) {
-                double newBalance = previousBalance * (1 + monthlyReturn) + financeData.getAdditions(year, month);
-                expectedBalances.get(year).put(month, newBalance);
-                previousBalance = newBalance;
-            }
+            double newBalance = expectedBalances.get(previousDate) * Math.pow(1 + returnPerPeriod, numPeriods)
+                    + financeData.getAdditions(date);
+            expectedBalances.put(date, newBalance);
+            System.out.println(String.format("%s %s", date.format(FORMATTER), newBalance));
+
+            previousDate = date;
         }
 
         return expectedBalances;
+    }
+
+    private static int daysInYear(final LocalDate date) {
+        if (date.isLeapYear()) {
+            return 366;
+        }
+        return 365;
+    }
+
+    private static int daysBetween(final LocalDate startDate, final LocalDate endDate) {
+        int daysBetween = endDate.getDayOfYear() - startDate.getDayOfYear();
+        if (startDate.getYear() != endDate.getYear()) {
+            int daysInPreviousYear = daysInYear(startDate) - startDate.getDayOfYear();
+            daysBetween = endDate.getDayOfYear() + daysInPreviousYear;
+        }
+        return daysBetween;
     }
 
 }

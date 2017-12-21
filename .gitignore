@@ -4,4 +4,5 @@
 .recommenders
 .classpath
 .project
-
+.DS_Store
+/target
