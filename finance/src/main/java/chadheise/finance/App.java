@@ -13,8 +13,8 @@ public class App {
         String filePath = args[0];
         String outputPath = args[1];
         int startYear = 0; // Default to 0 so no years are skipped
-        if (args.length > 3) {
-            startYear = Integer.parseInt(args[3]);
+        if (args.length > 2) {
+            startYear = Integer.parseInt(args[2]);
         }
 
         CsvReader reader = new CsvReader();
